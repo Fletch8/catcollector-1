@@ -29,6 +29,7 @@
             <li><a href="{% url 'logout' %}">Log out</a></li>
           {% else %}
             <li><a href="{% url 'login' %}">Log in</a></li>
+            <li><a href="{% url 'sign_up' %}">Sign up</a></li>
           {% endif %}
         </ul>
       </div>
@@ -42,6 +43,7 @@
     <li><a href="{% url 'logout' %}">Log out</a></li>
     {% else %}
     <li><a href="{% url 'login' %}">Log in</a></li>
+    <li><a href="{% url 'sign_up' %}">Sign up</a></li>
     {% endif %}
   </ul>
   <main class="container">
