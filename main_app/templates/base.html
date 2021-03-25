@@ -23,16 +23,26 @@
         <a href='#' class='right sidenav-trigger' data-target="mobile-demo"><i class="material-icons">menu</i></a>
         <ul class="right hide-on-med-and-down">
           <li><a href="{% url 'about' %}">About</a></li>
+          {% if user.is_authenticated %}
             <li><a href="{% url 'cats_create' %}">Add a Cat</a></li>
             <li><a href="{% url 'cats' %}">View All My Cats</a></li>
+            <li><a href="{% url 'logout' %}">Log out</a></li>
+          {% else %}
+            <li><a href="{% url 'login' %}">Log in</a></li>
+          {% endif %}
         </ul>
       </div>
     </nav>
   </header>  
   <ul class="sidenav" id="mobile-demo">
     <li><a href="{% url 'about' %}">About</a></li>
-      <li><a href="{% url 'cats_create' %}">Add a Cat</a></li>
-      <li><a href="{% url 'cats' %}">View All My Cats</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="{% url 'cats_create' %}">Add a Cat</a></li>
+    <li><a href="{% url 'cats' %}">View All My Cats</a></li>
+    <li><a href="{% url 'logout' %}">Log out</a></li>
+    {% else %}
+    <li><a href="{% url 'login' %}">Log in</a></li>
+    {% endif %}
   </ul>
   <main class="container">
     {% block content %}
