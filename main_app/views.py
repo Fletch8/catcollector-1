@@ -5,6 +5,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 # bring in some things to make auth easier
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+# bring in decorator
+from django.contrib.auth.decorators import login_required
+
+
+# attempt form
+from django.forms.models import model_to_dict
 
 # import models
 from .models import Cat
@@ -19,6 +25,7 @@ class CatCreate(CreateView):
   # fields = '__all__'s
   success_url = '/cats'
 
+# changed to use custom cat_update function with decorator
 class CatUpdate(UpdateView):
   model = Cat
   fields = ['name', 'breed', 'description', 'age']
@@ -27,6 +34,7 @@ class CatUpdate(UpdateView):
     self.object = form.save(commit=False)
     self.object.save()
     return HttpResponseRedirect('/cats/' + str(self.object.pk))
+
 
 class CatDelete(DeleteView):
   model = Cat
@@ -45,10 +53,13 @@ def contact(request):
 
 
 # CATS
+@login_required()
 def cats_index(request):
-    cats = Cat.objects.all()
+    # we have access to the user request.user
+    cats = Cat.objects.filter(user= request.user)
     return render(request, 'cats/index.html', { 'cats': cats })
 
+@login_required()
 def cats_show(request, cat_id):
     # we get access to that cat_id variable
     # query for the specific cat clicked
@@ -60,7 +71,28 @@ def cats_show(request, cat_id):
       'feeding_form': feeding_form 
     })
 
+#refactor to custom update to use @login_required decorator
+@login_required
+def cats_update(request, pk):
+  if request.POST:
+    print('its an update request')
+    # get the original cat
+    our_cat = Cat.objects.get(id=pk)
+    # update the values
+    our_cat.name = request.POST.get('name')
+    our_cat.breed = request.POST.get('breed')
+    our_cat.description = request.POST.get('description')
+    our_cat.age = request.POST.get('age')
+    our_cat.save()
+    return redirect('cats')
+
+  # this is for the GET request
+  cat = Cat.objects.get(id=pk)
+  catform = CatForm(initial=model_to_dict(cat)) 
+  return render(request, 'cats/cat_form.html', { 'form': catform })
+
 # build out cats_new custom to use the userId
+@login_required()
 def cats_new(request):
   # create new instance of cat form filled with submitted values or nothing
   # if this is a request.GET get request this will be none.
@@ -78,6 +110,7 @@ def cats_new(request):
     return render(request, 'cats/new.html', { 'cat_form': cat_form })
 
 # FEEDING
+@login_required()
 def add_feeding(request, pk):
   # this time we are passing the data from our request in that form
   form = FeedingForm(request.POST)
